@@ -21,6 +21,7 @@ const path = require('path')
 const { trans } = require('../common/lang/i18n')
 const isDir = require('../common/util/is-dir')
 const ZettlrMenu = require('./zettlr-menu.js')
+const ZettlrTouchBar = require('./zettlr-touchbar.js')
 
 /**
  * This class is a wrapper for electron's BrowserWindow class with some functions
@@ -178,7 +179,10 @@ class ZettlrWindow {
     // Set the application menu
     this._menu = new ZettlrMenu(this)
     this._menu.set()
-
+		
+		// Set the touchBar
+		this._touchbar = new ZettlrTouchBar(this)
+		this._touchbar.set()
     // Push the window into the globals that the menu for instance can access it
     // to send commands.
     global.mainWindow = this._win
@@ -461,6 +465,10 @@ class ZettlrWindow {
     // 0 = Ok, 1 = Cancel
 
     return (ret.response === 0)
+  }
+  
+  setTouchBar(TouchBar){
+  	this._win.setTouchBar(TouchBar)
   }
 }
 
