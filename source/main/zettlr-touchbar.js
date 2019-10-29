@@ -1,13 +1,30 @@
-const { TouchBar } = require('electron')
-const { TouchBarLabel, TouchBarButton, TouchBarSpacer, TouchBarPopover } = TouchBar
+/**
+ * @ignore
+ * BEGIN HEADER
+ *
+ * Contains:        ZettlrTouchBar
+ * CVM-Role:        Model
+ * Maintainer:      Warpcut
+ * License:         GNU GPL v3
+ *
+ * Description:     Class responsable for the Touch Bar implementation
+ *
+ * END HEADER
+ */
 
+const { TouchBar } = require('electron')
+const { TouchBarLabel, TouchBarButton, TouchBarSpacer, TouchBarPopover, TouchBarSlider } = TouchBar
 const test = new TouchBarLabel()
 
+//ToucbBars
 let touchBar = null
 let formattingBar = null
+let pomodoroBar = null
 
-let scrubber = null
+//Slider
+let volumeSlider = null
 
+//Buttons
 let hButton = null
 let boldButton = null
 let italicButton = null
@@ -18,98 +35,167 @@ let imageButton = null
 let numberedButton = null
 let itemizedButton = null
 let blockquoteButton = null
+let startStopButton = null
+let soundButton = null
+let mainTimerPlus = null
+let pauseTimerPlus = null
+let endTimerPlus = null
+
+
+//Labels
+let pomodoroLabel = null
+let instructionLabel = null
+
+//Vars
+let startStopValue = true
+let soundValue = false
 
 class ZettlrTouchBar{
 	constructor(parent){
 		this._window = parent
-		test.label = 'testOk'
 		this.init()
 	}
-	
 	init () {
+    pomodoroLabel = new TouchBarLabel({
+      label: '00.00'
+    })
+
+    instructionLabel = new TouchBarLabel({
+      label: 'Work'
+    })
+
 		hButton = new TouchBarButton({
   		label: '#',
   		backgroundColor: '#367B66',
   		click: () => {
-		    test.label = '#'
   		}
 		})
-		
+
 		boldButton = new TouchBarButton({
   		label: '𝗕',
   		backgroundColor: '#367B66',
   		click: () => {
-		    test.label = '****'
   		}
 		})
-		
+
 		italicButton = new TouchBarButton({
   		label: '𝐼',
   		backgroundColor: '#367B66',
   		click: () => {
-		    test.label = '__'
   		}
 		})
-		
+
 		codeButton = new TouchBarButton({
   		label: '<>',
   		backgroundColor: '#367B66',
   		click: () => {
-		    test.label = '<>'
   		}
 		})
-		
+
 		commentButton = new TouchBarButton({
   		label: '</>',
   		backgroundColor: '#367B66',
   		click: () => {
-		    test.label = '</>'
   		}
 		})
-		
+
 		linkButton = new TouchBarButton({
   		label: '🔗',
   		backgroundColor: '#367B66',
   		click: () => {
-		    test.label = '[]()'
   		}
 		})
-		
+
 		imageButton = new TouchBarButton({
   		label: '🖼',
   		backgroundColor: '#367B66',
   		click: () => {
-		    test.label = '![]()'
   		}
 		})
-		
+
 		blockquoteButton = new TouchBarButton({
   		label: '❞',
   		backgroundColor: '#367B66',
   		click: () => {
-		    test.label = '\'\''
   		}
 		})
-		
+
 		numberedButton = new TouchBarButton({
   		label: '≡',
   		backgroundColor: '#367B66',
   		click: () => {
-		    test.label = '1.'
   		}
 		})
-		
+
 		itemizedButton = new TouchBarButton({
   		label: '≔',
   		backgroundColor: '#367B66',
   		click: () => {
-		    test.label = '*'
   		}
 		})
-  	
+
+    startStopButton = new TouchBarButton({
+      label: 'Start',
+      backgroundColor: '#367B66',
+      click: () => {
+        //Start pomodoro Timer
+        if(startStopValue){
+          startStopButton.label = 'Stop'
+          startStopValue = false
+        }else{
+          startStopButton.label = 'Start'
+          startStopValue = true
+        }
+  		}
+    })
+    soundButton = new TouchBarButton({
+      label: '🔇',
+      backgroundColor: '#367B66',
+      click: () => {
+        //Start pomodoro Timer
+        if(!soundValue){
+          soundButton.label = '🔈'
+          soundValue = true
+        }else{
+          soundButton.label = '🔇'
+          soundValue = false
+        }
+  		}
+    })
+    mainTimerPlus = new TouchBarButton({
+      label: '25',
+      backgroundColor: '#E1613E',
+      click: () => {
+        pomodoroLabel.label = '25.00'
+  		}
+    })
+
+    pauseTimerPlus = new TouchBarButton({
+  		label: '5',
+  		backgroundColor: '#F4EEAA',
+  		click: () => {
+        pomodoroLabel.label = '05.00'
+  		}
+		})
+
+    endTimerPlus = new TouchBarButton({
+  		label: '20',
+  		backgroundColor: '#699159',
+  		click: () => {
+        pomodoroLabel.label = '20.00'
+  		}
+		})
+
+    volumeSlider = new TouchBarSlider({
+      label: '',
+      minValue: '0',
+      maxValue: '1',
+      change: (newValue) => {
+      }
+    })
+
   	formattingBar = new TouchBar({
   		items: [
-    		//test,
     		hButton,
     		boldButton,
     		italicButton,
@@ -122,14 +208,33 @@ class ZettlrTouchBar{
     		blockquoteButton
   		]
   	})
-				
+
+    pomodoroBar = new TouchBar({
+      items: [
+        startStopButton,
+        soundButton,
+        new TouchBarSpacer({size: 'small'}),
+        mainTimerPlus,
+        pauseTimerPlus,
+        endTimerPlus,
+        volumeSlider,
+        new TouchBarSpacer({size: 'flexible'}),
+        instructionLabel,
+        pomodoroLabel
+      ]
+    })
+
 		touchBar = new TouchBar({
   		items: [
-    		new TouchBarPopover({label: 'Α', items: formattingBar, showCloseButton: false  })
-  		]	
+    		new TouchBarPopover({label: 'Α', items: formattingBar, showCloseButton: false  }),
+        new TouchBarPopover({label: '🍅', items: pomodoroBar, showCloseButton: true  }),
+        new TouchBarSpacer({size: 'flexible'}),
+        instructionLabel,
+        pomodoroLabel
+  		]
   	})
 	}
-	
+
 	set () {
     //if macosOk
     this._touchBar = touchBar
